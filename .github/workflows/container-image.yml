@@ -1,0 +1,53 @@
+name: Container Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+concurrency:
+  group: container-image-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  container:
+    name: build fedora-coreos-bootc container
+    runs-on: ubuntu-24.04
+    steps:
+
+      - name: Harden runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set image variables
+        run: |
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+          echo "LOCAL_IMAGE=${GITHUB_REPOSITORY,,}:${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Build container
+        run: |
+          set -euo pipefail
+          podman build \
+            --file=Containerfile \
+            --tag="$LOCAL_IMAGE" \
+            "$GITHUB_WORKSPACE"
+
+      - name: Login to ghcr.io
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin
+
+      - name: Push container
+        run: |
+          set -euo pipefail
+          podman push --format oci "$LOCAL_IMAGE" "$IMAGE:stable"
+          podman push --format oci "$LOCAL_IMAGE" "$IMAGE:${SHORT_SHA}"
