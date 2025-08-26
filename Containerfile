@@ -8,10 +8,7 @@ RUN dnf -y install \
     fd-find \
     fish \
     iftop \
-    incus \
-    incus-agent \
     ncdu \
-    nodejs \
     smartmontools \
     sysbench \
     sysstat \
@@ -19,5 +16,4 @@ RUN dnf -y install \
     upower \
     wget \
     zip \
-    --exclude=nodejs-docs,nodejs-full-i18n \
     && dnf clean all
