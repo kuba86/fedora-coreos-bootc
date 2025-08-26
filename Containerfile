@@ -8,6 +8,8 @@ RUN dnf -y install \
     fd-find \
     fish \
     iftop \
+    incus \
+    incus-agent \
     ncdu \
     nodejs \
     smartmontools \
