@@ -3,6 +3,9 @@ name: Container Image CI
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'Containerfile'
+      - '.github/workflows/container-image.yml'
 concurrency:
   group: container-image-${{ github.ref }}
   cancel-in-progress: true
