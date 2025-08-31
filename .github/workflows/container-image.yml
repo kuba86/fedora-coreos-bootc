@@ -6,6 +6,7 @@ on:
     paths:
       - 'Containerfile'
       - '.github/workflows/container-image.yml'
+      - 'files/**'
 concurrency:
   group: container-image-${{ github.ref }}
   cancel-in-progress: true
