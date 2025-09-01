@@ -1,7 +1,6 @@
 FROM quay.io/fedora/fedora-coreos:stable
 
-COPY --chown=root:root --chmod=644 files/tailscale.repo /etc/yum.repos.d/tailscale.repo
-COPY --chown=root:root --chmod=644 files/k3s.repo /etc/yum.repos.d/k3s.repo
+COPY --chown=root:root --chmod=644 files/ /etc/yum.repos.d/
 
 RUN dnf -y install \
     bat \
