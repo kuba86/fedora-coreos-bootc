@@ -7,6 +7,7 @@ RUN dnf -y install \
     below \
     btop \
     compsize \
+    duf \
     fd-find \
     fish \
     iftop \
