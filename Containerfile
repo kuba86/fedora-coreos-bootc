@@ -5,6 +5,7 @@ COPY --chown=root:root --chmod=644 files/ /etc/yum.repos.d/
 RUN dnf -y install \
     bat \
     below \
+    binutils \
     btop \
     compsize \
     duf \
@@ -12,6 +13,7 @@ RUN dnf -y install \
     fish \
     iftop \
     k3s-selinux \
+    mkpassed \
     ncdu \
     smartmontools \
     sysbench \
