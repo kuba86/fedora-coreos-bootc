@@ -13,7 +13,7 @@ RUN dnf -y install \
     fish \
     iftop \
     k3s-selinux \
-    mkpassed \
+    mkpasswd \
     ncdu \
     smartmontools \
     sysbench \
