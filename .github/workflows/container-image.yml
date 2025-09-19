@@ -23,7 +23,7 @@ jobs:
     name: check if a newer version of CoreOS is available
     runs-on: ubuntu-24.04
     outputs:
-      newer-version-available: ${{ steps.coreos-version-check.outputs.newer-version-available }}
+      newer-version-available: ${{ steps.check-version.outputs.newer-version-available }}
     steps:
       - id: check-version
         name: check if a newer version is available
