@@ -28,38 +28,7 @@ jobs:
       - id: check-version
         name: check if a newer version is available
         shell: bash
-        run: |
-          set -euo pipefail
-          
-          NAME="kuba86/fedora-coreos-bootc"
-          TAG="stable"
-          
-          TOKEN="$(curl -fsSL "https://ghcr.io/token?service=ghcr.io&scope=repository:${NAME}:pull" \
-            | jq -r '.token')"
-          
-          MANIFEST_JSON="$(curl -fsSL \
-            -H "Authorization: Bearer ${TOKEN}" \
-            -H "Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json" \
-            "https://ghcr.io/v2/${NAME}/manifests/${TAG}")"
-          
-          CONFIG_DIGEST="$(jq -r '.config.digest' <<<"$MANIFEST_JSON")"
-          
-          GHCRIO_DATETIME=$(curl -fsSL -H "Authorization: Bearer ${TOKEN}" \
-            "https://ghcr.io/v2/${NAME}/blobs/${CONFIG_DIGEST}" | jq -r '.created')
-          
-          COREOS_DATETIME=$( curl -fsSL https://builds.coreos.fedoraproject.org/streams/stable.json \
-            | jq -r '.metadata["last-modified"]')
-          
-          GHCRIO_TIMESTAMP=$(date -d "$GHCRIO_DATETIME" +%s)
-          COREOS_TIMESTAMP=$(date -d "$COREOS_DATETIME" +%s)
-          
-          if [[ "$GHCRIO_TIMESTAMP" -lt "$COREOS_TIMESTAMP" ]]; then
-            echo "GHCRIO is newer than COREOS, no need to rebuild"
-            echo "newer-version-available=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "GHCRIO is older than COREOS, will rebuild"
-            echo "newer-version-available=true" >> "$GITHUB_OUTPUT"
-          fi
+        run: .github/scripts/check-coreos-version.sh
 
   build-image:
     name: build fedora-coreos-bootc image
