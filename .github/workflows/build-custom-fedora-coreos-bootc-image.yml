@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'Containerfile'
-      - '.github/workflows/container-image.yml'
+      - '.github/**'
       - 'files/**'
   schedule:
     - cron: '43 20 * * *'
