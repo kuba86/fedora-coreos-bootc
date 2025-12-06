@@ -56,7 +56,8 @@ jobs:
       - name: Build container
         run: |
           set -euo pipefail
-          podman build \
+          podman \
+            build \
             --file=Containerfile \
             --tag="$LOCAL_IMAGE" \
             "$GITHUB_WORKSPACE"
