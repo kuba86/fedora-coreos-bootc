@@ -2,39 +2,34 @@ FROM quay.io/fedora/fedora-coreos:stable
 
 COPY --chown=root:root --chmod=644 files/ /etc/yum.repos.d/
 
-RUN dnf -y install \
+RUN dnf -y install --setopt=install_weak_deps=False \
     bat \
     below \
-    bind-utils \
     binutils \
     btop \
     compsize \
     duf \
+    etckeeper \
     eza \
     fd-find \
     fish \
     git \
+    graalvm-jdk17 \
     iftop \
-    iputils \
-    iproute \
-    jq \
     k3s-selinux \
     mkpasswd \
     nano \
     ncdu \
-    ncurses \
     p7zip \
-    procps-ng \
-    rsync \
     smartmontools \
     sysbench \
     sysstat \
     tailscale \
     unzip \
+    usbutils \
     upower \
-    util-linux \
     wget \
-    which \
     zip \
     && dnf clean all \
-    && rm -rf /var/cache/yum
+    && rm -rf /var/cache/{dnf,yum} \
+    && rm -rf /var/tmp/* /tmp/*
