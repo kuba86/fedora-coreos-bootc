@@ -18,7 +18,6 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     iftop \
     k3s-selinux \
     mkpasswd \
-    nano \
     ncdu \
     p7zip \
     smartmontools \
