@@ -2,7 +2,10 @@ FROM quay.io/fedora/fedora-coreos:stable
 
 COPY --chown=root:root --chmod=644 files/ /etc/yum.repos.d/
 
-RUN dnf -y install --setopt=install_weak_deps=False \
+RUN dnf -y install --setopt=install_weak_deps=True \
+    incus \
+    incus-agent \
+    && dnf -y install --setopt=install_weak_deps=False \
     bat \
     below \
     binutils \
@@ -14,7 +17,6 @@ RUN dnf -y install --setopt=install_weak_deps=False \
     fd-find \
     fish \
     git \
-    graalvm-jdk17 \
     iftop \
     k3s-selinux \
     mkpasswd \
