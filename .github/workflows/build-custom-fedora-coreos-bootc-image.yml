@@ -23,6 +23,8 @@ jobs:
     outputs:
       newer-version-available: ${{ steps.check-version.outputs.newer-version-available }}
     permissions:
+      contents: read
+      packages: write
       id-token: write
     steps:
       - name: Checkout code
