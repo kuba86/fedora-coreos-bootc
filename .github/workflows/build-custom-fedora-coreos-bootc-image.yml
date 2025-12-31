@@ -9,39 +9,16 @@ on:
       - '.github/**'
       - 'files/**'
   schedule:
-    - cron: '43 20 * * *'
+    - cron: '43 16 */3 * *'
   workflow_dispatch:
   
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  
-permissions:
-  contents: read
-  packages: write
-  id-token: write
 
 jobs:
-  coreos-version-check:
-    name: check if a newer version of CoreOS is available
-    runs-on: ubuntu-latest
-    outputs:
-      newer-version-available: ${{ steps.check-version.outputs.newer-version-available }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - id: check-version
-        name: check if a newer version is available
-        shell: bash
-        run: .github/scripts/check-coreos-version.sh
-
   build-image:
     name: build fedora-coreos-bootc image
-    needs: coreos-version-check
-    if: needs.coreos-version-check.outputs.newer-version-available == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
