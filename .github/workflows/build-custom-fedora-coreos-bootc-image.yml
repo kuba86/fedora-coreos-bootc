@@ -24,7 +24,7 @@ permissions:
 jobs:
   coreos-version-check:
     name: check if a newer version of CoreOS is available
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       newer-version-available: ${{ steps.check-version.outputs.newer-version-available }}
     steps:
