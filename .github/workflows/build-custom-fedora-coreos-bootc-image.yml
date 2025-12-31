@@ -29,10 +29,10 @@ jobs:
       newer-version-available: ${{ steps.check-version.outputs.newer-version-available }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
-
+      
       - id: check-version
         name: check if a newer version is available
         shell: bash
