@@ -2,31 +2,29 @@ name: Build a custom Fedora CoreOS bootc image
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
     paths:
       - 'Containerfile'
       - '.github/**'
       - 'files/**'
   schedule:
     - cron: '43 20 * * *'
-concurrency:
-  group: container-image-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
-  packages: write
-  id-token: write
+  workflow_dispatch:
+  
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   coreos-version-check:
     name: check if a newer version of CoreOS is available
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       newer-version-available: ${{ steps.check-version.outputs.newer-version-available }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -39,35 +37,45 @@ jobs:
     name: build fedora-coreos-bootc image
     needs: coreos-version-check
     if: needs.coreos-version-check.outputs.newer-version-available == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-
+      
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
-
-      - name: Set image variables
-        run: |
-          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
-          echo "LOCAL_IMAGE=${GITHUB_REPOSITORY,,}:${GITHUB_SHA}" >> $GITHUB_ENV
-          echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
-
-      - name: Build container
-        run: |
-          set -euo pipefail
-          podman \
-            build \
-            --file=Containerfile \
-            --tag="$LOCAL_IMAGE" \
-            "$GITHUB_WORKSPACE"
-
-      - name: Login to ghcr.io
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin
-
-      - name: Push container
-        run: |
-          set -euo pipefail
-          podman push --format oci "$LOCAL_IMAGE" "$IMAGE:stable"
-          podman push --format oci "$LOCAL_IMAGE" "$IMAGE:${SHORT_SHA}"
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=stable,enable={{is_default_branch}}
+      
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Containerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=target,oci-mediatypes=true,push=true
