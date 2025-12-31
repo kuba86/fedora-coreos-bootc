@@ -63,7 +63,7 @@ get_manifest() {
   local url="https://${REGISTRY_HOST}/v2/${NAME}/manifests/${TAG}"
   retry 4 curl -fsSL \
     -H "Authorization: Bearer ${token}" \
-    -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json" \
+    -H "Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json" \
     "$url"
 }
 
@@ -92,19 +92,12 @@ main() {
 
   local manifest_json
   manifest_json="$(get_manifest "$token")"
-  if [[ -z "$manifest_json" || "$manifest_json" == *"errors"* ]]; then
+  if [[ -z "$manifest_json" ]]; then
     log "Failed to fetch manifest for ${NAME}:${TAG}"
     exit 4
   fi
 
   local config_digest
-  if [[ "$(jq -r '.manifests != null' <<<"$manifest_json")" == "true" ]]; then
-    log "Multi-arch image detected, fetching digest for first platform..."
-    local first_manifest_digest
-    first_manifest_digest=$(jq -r '.manifests[0].digest' <<<"$manifest_json")
-    manifest_json=$(retry 4 curl -sSL -H "Authorization: Bearer ${token}" "https://${REGISTRY_HOST}/v2/${NAME}/manifests/${first_manifest_digest}")
-  fi
-
   config_digest="$(jq -r '.config.digest // empty' <<<"$manifest_json")"
   if [[ -z "$config_digest" ]]; then
     log "Manifest missing config.digest"
