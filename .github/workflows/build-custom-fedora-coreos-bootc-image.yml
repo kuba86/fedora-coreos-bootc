@@ -10,28 +10,21 @@ on:
       - 'files/**'
   schedule:
     - cron: '43 20 * * *'
-concurrency:
-  group: container-image-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch:
   
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
-permissions:
-  contents: read
-  packages: write
-  id-token: write
-
 jobs:
   coreos-version-check:
     name: check if a newer version of CoreOS is available
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       newer-version-available: ${{ steps.check-version.outputs.newer-version-available }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
       
