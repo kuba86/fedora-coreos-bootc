@@ -16,16 +16,17 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
 jobs:
   coreos-version-check:
     name: check if a newer version of CoreOS is available
     runs-on: ubuntu-latest
     outputs:
       newer-version-available: ${{ steps.check-version.outputs.newer-version-available }}
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
