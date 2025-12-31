@@ -6,6 +6,7 @@ RUN dnf -y install --setopt=install_weak_deps=True \
     incus \
     incus-agent \
     && dnf -y install --setopt=install_weak_deps=False \
+    age \
     bat \
     below \
     binutils \
@@ -22,9 +23,14 @@ RUN dnf -y install --setopt=install_weak_deps=True \
     mkpasswd \
     ncdu \
     p7zip \
+    pcsc-lite \
     smartmontools \
     sysbench \
     sysstat \
+    sequoia-sq \
+    sequoia-chameleon-gnupg \
+    sequoia-keystore-server \
+    sequoia-sqv \
     tailscale \
     unzip \
     usbutils \
