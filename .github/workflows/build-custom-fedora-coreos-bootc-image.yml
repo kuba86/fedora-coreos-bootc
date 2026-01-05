@@ -17,8 +17,31 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      
+      - name: Check if update is needed
+        id: check
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+        run: |
+          chmod +x .github/scripts/check-fedora-coreos-version.sh
+          .github/scripts/check-fedora-coreos-version.sh
+          
   build-image:
     name: build fedora-coreos-bootc image
+    needs: check-updates
+    if: needs.check-updates.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
