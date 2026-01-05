@@ -9,7 +9,7 @@ on:
       - '.github/**'
       - 'files/**'
   schedule:
-    - cron: '43 16 */3 * *'
+    - cron: '43 16 * * *'
   workflow_dispatch:
   
 env:
