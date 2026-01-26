@@ -11,6 +11,7 @@ RUN dnf -y install --setopt=install_weak_deps=True \
     below \
     binutils \
     btop \
+    cloudflared \
     compsize \
     duf \
     etckeeper \
