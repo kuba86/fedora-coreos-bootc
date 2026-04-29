@@ -10,8 +10,7 @@ if [ "$GITHUB_EVENT_NAME" != "schedule" ]; then
 fi
 
 # 2. Get Upstream Timestamp
-UPSTREAM_JSON=$(curl -fsSL "https://builds.coreos.fedoraproject.org/streams/stable.json")
-UPSTREAM_LAST_MODIFIED=$(echo "$UPSTREAM_JSON" | jq -r '.metadata["last-modified"]')
+UPSTREAM_LAST_MODIFIED=$(curl -fsSL "https://builds.coreos.fedoraproject.org/streams/stable.json" | jq -r '.metadata["last-modified"]')
 if [ -z "$UPSTREAM_LAST_MODIFIED" ] || [ "$UPSTREAM_LAST_MODIFIED" == "null" ]; then
   echo "Error: Failed to get upstream last-modified timestamp" >&2
   exit 1
