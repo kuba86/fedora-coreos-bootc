@@ -13,6 +13,7 @@ RUN dnf -y install --setopt=install_weak_deps=True \
     btop \
     cloudflared \
     compsize \
+    distrobox \
     duf \
     etckeeper \
     eza \
