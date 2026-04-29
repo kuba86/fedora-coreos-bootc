@@ -1,44 +1,12 @@
 FROM quay.io/fedora/fedora-coreos:stable
 
 COPY --chown=root:root --chmod=644 files/ /etc/yum.repos.d/
+COPY packages.txt packages-weak.txt /tmp/
 
 RUN dnf -y install --setopt=install_weak_deps=True \
-    incus \
-    incus-agent \
+    $(cat /tmp/packages-weak.txt) \
     && dnf -y install --setopt=install_weak_deps=False \
-    age \
-    bat \
-    below \
-    binutils \
-    btop \
-    cloudflared \
-    compsize \
-    distrobox \
-    duf \
-    etckeeper \
-    eza \
-    fd-find \
-    fish \
-    git \
-    iftop \
-    k3s-selinux \
-    mkpasswd \
-    ncdu \
-    p7zip \
-    pcsc-lite \
-    smartmontools \
-    sysbench \
-    sysstat \
-    sequoia-sq \
-    sequoia-chameleon-gnupg \
-    sequoia-keystore-server \
-    sequoia-sqv \
-    tailscale \
-    unzip \
-    usbutils \
-    upower \
-    wget \
-    zip \
+    $(cat /tmp/packages.txt) \
     && dnf clean all \
     && rm -rf /var/cache/{dnf,yum} \
     && rm -rf /var/tmp/* /tmp/*
