@@ -12,6 +12,10 @@ fi
 # 2. Get Upstream Timestamp
 UPSTREAM_JSON=$(curl -fsSL "https://builds.coreos.fedoraproject.org/streams/stable.json")
 UPSTREAM_LAST_MODIFIED=$(echo "$UPSTREAM_JSON" | jq -r '.metadata["last-modified"]')
+if [ -z "$UPSTREAM_LAST_MODIFIED" ] || [ "$UPSTREAM_LAST_MODIFIED" == "null" ]; then
+  echo "Error: Failed to get upstream last-modified timestamp" >&2
+  exit 1
+fi
 echo "Upstream Last Modified: $UPSTREAM_LAST_MODIFIED"
 
 # 3. Get Current Image Timestamp
@@ -26,6 +30,11 @@ if ! IMAGE_INFO=$(skopeo inspect docker://${REGISTRY}/${IMAGE_NAME}:stable 2>/de
 fi
 
 CURRENT_CREATED=$(echo "$IMAGE_INFO" | jq -r '.Created')
+if [ -z "$CURRENT_CREATED" ] || [ "$CURRENT_CREATED" == "null" ]; then
+  echo "Warning: Failed to get current image creation timestamp. Build required."
+  echo "should_build=true" >> "$GITHUB_OUTPUT"
+  exit 0
+fi
 echo "Current Image Created: $CURRENT_CREATED"
 
 # 4. Compare Timestamps (convert to epoch seconds)
