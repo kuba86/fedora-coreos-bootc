@@ -20,7 +20,7 @@ echo "Upstream Last Modified: $UPSTREAM_LAST_MODIFIED"
 
 # 3. Get Current Image Timestamp
 # Login to GHCR to inspect the image
-echo "$GITHUB_TOKEN" | skopeo login "$REGISTRY" -u "$GITHUB_ACTOR" --password-stdin
+printenv GITHUB_TOKEN | skopeo login "$REGISTRY" -u "$GITHUB_ACTOR" --password-stdin
 
 # Check if image exists. If not, we must build.
 if ! IMAGE_INFO=$(skopeo inspect docker://${REGISTRY}/${IMAGE_NAME}:stable 2>/dev/null); then
