@@ -61,6 +61,16 @@ create_mock() {
   [[ "$output" == *"Error: Failed to get upstream last-modified timestamp"* ]]
 }
 
+@test "Fails if skopeo login fails" {
+  create_mock "curl" "echo '{\"metadata\": {\"last-modified\": \"2023-01-01T00:00:00Z\"}}'"
+  create_mock "skopeo" "exit 1"
+
+  run "$SCRIPT_PATH"
+
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Error: Failed to login to GHCR"* ]]
+}
+
 @test "Builds if image is not found on registry" {
   create_mock "curl" "echo '{\"metadata\": {\"last-modified\": \"2023-01-01T00:00:00Z\"}}'"
 
