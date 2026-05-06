@@ -10,6 +10,7 @@ on:
       - 'packages-weak.txt'
       - '.github/**'
       - 'files/**'
+      - 'tests/**'
   schedule:
     - cron: '43 16 * * *'
   workflow_dispatch:
