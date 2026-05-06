@@ -10,7 +10,7 @@ if [ "$GITHUB_EVENT_NAME" != "schedule" ]; then
 fi
 
 # 2. Get Upstream Timestamp
-UPSTREAM_LAST_MODIFIED=$(curl -fsSL "https://builds.coreos.fedoraproject.org/streams/stable.json" | jq -r '.metadata["last-modified"]')
+UPSTREAM_LAST_MODIFIED="$(curl -fsSL "https://builds.coreos.fedoraproject.org/streams/stable.json" | jq -r '.metadata["last-modified"]')"
 if [ -z "$UPSTREAM_LAST_MODIFIED" ] || [ "$UPSTREAM_LAST_MODIFIED" == "null" ]; then
   echo "Error: Failed to get upstream last-modified timestamp" >&2
   exit 1
@@ -25,13 +25,13 @@ if ! printenv GITHUB_TOKEN | skopeo login "$REGISTRY" -u "$GITHUB_ACTOR" --passw
 fi
 
 # Check if image exists. If not, we must build.
-if ! IMAGE_INFO=$(skopeo inspect docker://${REGISTRY}/${IMAGE_NAME}:stable 2>/dev/null); then
+if ! IMAGE_INFO="$(skopeo inspect docker://${REGISTRY}/${IMAGE_NAME}:stable 2>/dev/null)"; then
   echo "Image not found on registry. Build required."
   echo "should_build=true" >> "$GITHUB_OUTPUT"
   exit 0
 fi
 
-CURRENT_CREATED=$(echo "$IMAGE_INFO" | jq -r '.Created')
+CURRENT_CREATED="$(echo "$IMAGE_INFO" | jq -r '.Created')"
 if [ -z "$CURRENT_CREATED" ] || [ "$CURRENT_CREATED" == "null" ]; then
   echo "Warning: Failed to get current image creation timestamp. Build required."
   echo "should_build=true" >> "$GITHUB_OUTPUT"
@@ -40,8 +40,8 @@ fi
 echo "Current Image Created: $CURRENT_CREATED"
 
 # 4. Compare Timestamps (convert to epoch seconds)
-TS_UPSTREAM=$(date -d "$UPSTREAM_LAST_MODIFIED" +%s)
-TS_CURRENT=$(date -d "$CURRENT_CREATED" +%s)
+TS_UPSTREAM="$(date -d "$UPSTREAM_LAST_MODIFIED" +%s)"
+TS_CURRENT="$(date -d "$CURRENT_CREATED" +%s)"
 
 if [ "$TS_UPSTREAM" -gt "$TS_CURRENT" ]; then
   echo "Upstream is newer ($TS_UPSTREAM > $TS_CURRENT). Build required."
