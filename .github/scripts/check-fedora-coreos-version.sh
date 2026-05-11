@@ -1,10 +1,36 @@
 #!/bin/bash
 set -e
 
+send_notification() {
+  if [ -z "$NTFY_URL" ] || [ -z "$NTFY_TOPIC" ]; then
+    echo "Notification skipped: NTFY_URL or NTFY_TOPIC not set."
+    return 0
+  fi
+
+  local message="$1"
+  # Remove trailing slash from NTFY_URL if present
+  local base_url="${NTFY_URL%/}"
+  local url="${base_url}/${NTFY_TOPIC}"
+
+  echo "Sending notification: $message"
+
+  local curl_opts=("-fsSL" "-d" "$message")
+  if [ -n "$NTFY_TOKEN" ]; then
+    curl_opts+=("-H" "Authorization: Bearer $NTFY_TOKEN")
+  fi
+
+  if curl "${curl_opts[@]}" "$url" > /dev/null; then
+    echo "Notification sent successfully."
+  else
+    echo "Warning: Failed to send notification." >&2
+  fi
+}
+
 # 1. Check Event Type
 # Always build on non-schedule events (push, workflow_dispatch)
 if [ "$GITHUB_EVENT_NAME" != "schedule" ]; then
   echo "Not a scheduled run. Build required."
+  send_notification "Fedora CoreOS: Manual or push trigger detected, starting build."
   echo "should_build=true" >> "$GITHUB_OUTPUT"
   exit 0
 fi
@@ -27,6 +53,7 @@ fi
 # Check if image exists. If not, we must build.
 if ! IMAGE_INFO="$(skopeo inspect docker://${REGISTRY}/${IMAGE_NAME}:stable 2>/dev/null)"; then
   echo "Image not found on registry. Build required."
+  send_notification "Fedora CoreOS: Image not found on registry, starting initial build."
   echo "should_build=true" >> "$GITHUB_OUTPUT"
   exit 0
 fi
@@ -34,6 +61,7 @@ fi
 CURRENT_CREATED="$(echo "$IMAGE_INFO" | jq -r '.Created')"
 if [ -z "$CURRENT_CREATED" ] || [ "$CURRENT_CREATED" == "null" ]; then
   echo "Warning: Failed to get current image creation timestamp. Build required."
+  send_notification "Fedora CoreOS: Failed to get current image timestamp, starting build to be safe."
   echo "should_build=true" >> "$GITHUB_OUTPUT"
   exit 0
 fi
@@ -45,6 +73,7 @@ TS_CURRENT="$(date -d "$CURRENT_CREATED" +%s)"
 
 if [ "$TS_UPSTREAM" -gt "$TS_CURRENT" ]; then
   echo "Upstream is newer ($TS_UPSTREAM > $TS_CURRENT). Build required."
+  send_notification "Fedora CoreOS: New update detected (Upstream: $UPSTREAM_LAST_MODIFIED), starting build."
   echo "should_build=true" >> "$GITHUB_OUTPUT"
 else
   echo "Image is up to date. Skipping build."
