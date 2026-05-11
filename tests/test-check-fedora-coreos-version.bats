@@ -135,3 +135,60 @@ create_mock() {
   [[ "$output" == *"Image is up to date. Skipping build."* ]]
   grep -q "should_build=false" "$GITHUB_OUTPUT"
 }
+
+@test "Sends notification on non-schedule event" {
+  export GITHUB_EVENT_NAME="push"
+  export NTFY_URL="https://ntfy.example.com"
+  export NTFY_TOPIC="my-topic"
+
+  create_mock "curl" "echo 'ok'; exit 0"
+
+  run "$SCRIPT_PATH"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Sending notification: Fedora CoreOS: Manual or push trigger detected, starting build."* ]]
+  [[ "$output" == *"Notification sent successfully."* ]]
+}
+
+@test "Sends notification with token when provided" {
+  export GITHUB_EVENT_NAME="push"
+  export NTFY_URL="https://ntfy.example.com/"
+  export NTFY_TOPIC="my-topic"
+  export NTFY_TOKEN="secret-token"
+
+  create_mock "curl" '
+  # Check if Authorization header is present
+  if [[ "$*" == *"-H Authorization: Bearer secret-token"* ]]; then
+    echo "Auth header found"
+  else
+    echo "Auth header missing"
+    exit 1
+  fi
+  # Check if URL is correct (handles trailing slash in NTFY_URL)
+  if [[ "$*" == *"https://ntfy.example.com/my-topic"* ]]; then
+    echo "URL correct"
+  else
+    echo "URL incorrect: $*"
+    exit 1
+  fi
+  exit 0
+  '
+
+  run "$SCRIPT_PATH"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Notification sent successfully."* ]]
+}
+
+@test "Gracefully handles notification failure" {
+  export GITHUB_EVENT_NAME="push"
+  export NTFY_URL="https://ntfy.example.com"
+  export NTFY_TOPIC="my-topic"
+
+  create_mock "curl" "exit 1"
+
+  run "$SCRIPT_PATH"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Warning: Failed to send notification."* ]]
+}
