@@ -14,7 +14,7 @@ send_notification() {
 
   echo "Sending notification: $message"
 
-  local curl_opts=("-fsSL" "-d" "$message")
+  local curl_opts=("-fsSL" "--data-raw" "$message")
   if [ -n "$NTFY_TOKEN" ]; then
     curl_opts+=("-H" "Authorization: Bearer $NTFY_TOKEN")
   fi
