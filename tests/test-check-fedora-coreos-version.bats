@@ -192,3 +192,18 @@ create_mock() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"Warning: Failed to send notification."* ]]
 }
+
+@test "send_notification uses --data-raw to prevent file inclusion via @ symbol" {
+  export GITHUB_EVENT_NAME="push"
+  export NTFY_URL="https://ntfy.example.com"
+  export NTFY_TOPIC="my-topic"
+
+  # We mock curl to capture the arguments it was called with
+  create_mock "curl" 'echo "$@" > "$TEMP_DIR/curl_args"; exit 0'
+
+  run "$SCRIPT_PATH"
+
+  [ "$status" -eq 0 ]
+  # Check if curl was called with --data-raw
+  grep -q "\-\-data-raw" "$TEMP_DIR/curl_args"
+}
