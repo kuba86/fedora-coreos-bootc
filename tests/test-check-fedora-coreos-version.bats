@@ -136,6 +136,28 @@ create_mock() {
   grep -q "should_build=false" "$GITHUB_OUTPUT"
 }
 
+@test "Skips notification when NTFY_URL is not set" {
+  export GITHUB_EVENT_NAME="push"
+  export NTFY_TOPIC="my-topic"
+  unset NTFY_URL
+
+  run "$SCRIPT_PATH"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Notification skipped: NTFY_URL or NTFY_TOPIC not set."* ]]
+}
+
+@test "Skips notification when NTFY_TOPIC is not set" {
+  export GITHUB_EVENT_NAME="push"
+  export NTFY_URL="https://ntfy.example.com"
+  unset NTFY_TOPIC
+
+  run "$SCRIPT_PATH"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Notification skipped: NTFY_URL or NTFY_TOPIC not set."* ]]
+}
+
 @test "Sends notification on non-schedule event" {
   export GITHUB_EVENT_NAME="push"
   export NTFY_URL="https://ntfy.example.com"
