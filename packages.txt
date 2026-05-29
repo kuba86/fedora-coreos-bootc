@@ -11,6 +11,7 @@ etckeeper
 eza
 fd-find
 fish
+fuse
 git
 iftop
 k3s-selinux
