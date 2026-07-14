@@ -26,6 +26,7 @@ smartmontools
 sysbench
 sysstat
 tailscale
+udisks2
 unzip
 upower
 usbutils
