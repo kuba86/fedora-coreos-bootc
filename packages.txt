@@ -12,6 +12,7 @@ eza
 fd-find
 fish
 git
+git-lfs
 iftop
 k3s-selinux
 mkpasswd
