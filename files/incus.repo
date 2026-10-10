@@ -1,0 +1,12 @@
+[copr:copr.fedorainfracloud.org:jurav59:incus]
+name=Copr repo for incus owned by jurav59
+baseurl=https://download.copr.fedorainfracloud.org/results/jurav59/incus/fedora-$releasever-$basearch/
+type=rpm-md
+skip_if_unavailable=False
+gpgcheck=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/jurav59/incus/pubkey.gpg
+repo_gpgcheck=0
+enabled=1
+enabled_metadata=1
+includepkgs=incus*
+priority=1

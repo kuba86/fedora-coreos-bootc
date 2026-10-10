@@ -1,5 +1,11 @@
 # fedora-coreos-bootc
 
+Incus is installed from the [jurav59/incus COPR](https://copr.fedorainfracloud.org/coprs/jurav59/incus).
+The build explicitly installs `incus`, `incus-agent`, and `incus-ui` from that repository in one
+transaction with weak dependencies enabled.
+`incus-admin` is a Unix group supplied by Incus, not a separate RPM package. The COPR is restricted
+to `incus*` packages and has priority over other repositories. If it is unavailable, the build fails.
+
 ## Ansible:
 ```yaml
 - name: Fedora CoreOS bootc rebase
