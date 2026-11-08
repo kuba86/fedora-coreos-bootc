@@ -7,7 +7,6 @@ on:
     paths:
       - 'Containerfile'
       - 'packages.txt'
-      - 'packages-weak.txt'
       - '.github/**'
       - 'files/**'
       - 'tests/**'
